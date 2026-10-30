@@ -15,7 +15,7 @@ Product fakeProduct(int id) => Product(
 
 /// Fake page of [total] items.
 ProductPage fakePage({required int skip, required int limit, required int total}) {
-  final count = (total - skip).clamp(0, limit);
+  final count = (total - skip).clamp(0, limit).toInt();
   return ProductPage(
     products: List.generate(count, (i) => fakeProduct(skip + i + 1)),
     total: total,
