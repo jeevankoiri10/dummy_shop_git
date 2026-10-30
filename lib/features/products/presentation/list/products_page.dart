@@ -6,6 +6,7 @@ import '../../../auth/presentation/session/session_cubit.dart';
 import '../../../users/presentation/profile_page.dart';
 import '../../../users/presentation/user_avatar.dart';
 import '../../data/products_repository.dart';
+import '../detail/product_detail_page.dart';
 import '../widgets/product_tile.dart';
 import 'products_bloc.dart';
 
@@ -153,7 +154,11 @@ class _ProductList extends StatelessWidget {
         final product = products[index];
         return ProductTile(
           product: product,
-          onTap: () {}, // TODO detail page
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => ProductDetailPage(product: product),
+            ),
+          ),
         );
       },
     );
