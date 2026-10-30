@@ -66,7 +66,7 @@ class ProductPage extends Equatable {
   final int skip;
   final int limit;
 
-  bool get hasMore => skip + products.length <= total;
+  bool get hasMore => skip + products.length < total;
 
   factory ProductPage.fromApi(api.ProductList list) => ProductPage(
         products: (list.products ?? const <api.Product>[])

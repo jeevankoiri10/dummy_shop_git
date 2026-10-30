@@ -99,7 +99,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       if (generation != _generation) return;
       emit(state.copyWith(
         products: [...state.products, ...page.products],
-        hasMore: page.hasMore,
+        hasMore: page.hasMore && page.products.isNotEmpty,
         isLoadingMore: false,
       ));
     } on ApiException catch (e) {
