@@ -1,0 +1,949 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "DummyJSON API",
+    "version": "0.2.1",
+    "description": "Free fake REST API for placeholder JSON data.\n\nMost resources also accept an authenticated prefix: `GET /auth/{resource}` with a Bearer token\n(or `accessToken` cookie) returns the same payload as the public route while simulating a logged-in user.\n\nSingular aliases work too (`/product` ≡ `/products`, `/user` ≡ `/users`, etc.).\n\nHuman-readable docs: https://dummyjson.com/docs",
+    "contact": {
+      "name": "DummyJSON",
+      "url": "https://dummyjson.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/Ovi/DummyJSON/blob/master/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://dummyjson.com",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Product catalog endpoints"
+    },
+    {
+      "name": "Carts",
+      "description": "Shopping cart endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User profile endpoints"
+    },
+    {
+      "name": "Posts",
+      "description": "Blog post endpoints"
+    },
+    {
+      "name": "Comments",
+      "description": "Comment endpoints"
+    },
+    {
+      "name": "Todos",
+      "description": "Todo endpoints"
+    },
+    {
+      "name": "Quotes",
+      "description": "Quote endpoints"
+    },
+    {
+      "name": "Recipes",
+      "description": "Recipe endpoints"
+    },
+    {
+      "name": "Auth",
+      "description": "Login, logout, refresh, and current user"
+    },
+    {
+      "name": "HTTP",
+      "description": "Mock HTTP status responses"
+    },
+    {
+      "name": "Test",
+      "description": "Connectivity / health check"
+    },
+    {
+      "name": "Image",
+      "description": "Placeholder image generator"
+    },
+    {
+      "name": "Icon",
+      "description": "Identicon generator"
+    },
+    {
+      "name": "Custom Response",
+      "description": "Custom JSON response URLs"
+    },
+    {
+      "name": "IP",
+      "description": "Client IP helper"
+    },
+    {
+      "name": "2FA",
+      "description": "TOTP generator"
+    },
+    {
+      "name": "Webhook",
+      "description": "Temporary webhook inbox"
+    }
+  ],
+  "security": [],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login and receive access/refresh tokens",
+        "operationId": "authLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "emilys"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "emilyspass"
+                  },
+                  "expiresInMins": {
+                    "type": "integer",
+                    "example": 60
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get current authenticated user",
+        "operationId": "authMe",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh access and refresh tokens",
+        "operationId": "authRefresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  },
+                  "expiresInMins": {
+                    "type": "integer",
+                    "example": 60
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tokens"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get all products",
+        "operationId": "getAllProducts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/skip"
+          },
+          {
+            "$ref": "#/components/parameters/select"
+          },
+          {
+            "$ref": "#/components/parameters/sortBy"
+          },
+          {
+            "$ref": "#/components/parameters/order"
+          },
+          {
+            "$ref": "#/components/parameters/delay"
+          },
+          {
+            "$ref": "#/components/parameters/modifiedAfter"
+          },
+          {
+            "$ref": "#/components/parameters/modifiedBefore"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a single user",
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/select"
+          },
+          {
+            "$ref": "#/components/parameters/delay"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthUser"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "accessToken": {
+                "type": "string"
+              },
+              "refreshToken": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "AuthUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "emilys"
+          },
+          "email": {
+            "type": "string",
+            "example": "emily.johnson@x.dummyjson.com"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Emily"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Johnson"
+          },
+          "gender": {
+            "type": "string",
+            "example": "female"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://dummyjson.com/icon/emilys/128"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Something went wrong."
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Emily"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Johnson"
+          },
+          "maidenName": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "age": {
+            "type": "integer",
+            "example": 29
+          },
+          "gender": {
+            "type": "string",
+            "example": "female"
+          },
+          "email": {
+            "type": "string",
+            "example": "emily.johnson@x.dummyjson.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+81 965-431-3024"
+          },
+          "username": {
+            "type": "string",
+            "example": "emilys"
+          },
+          "password": {
+            "type": "string",
+            "example": "emilyspass"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1996-5-30"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://dummyjson.com/icon/emilys/128"
+          },
+          "bloodGroup": {
+            "type": "string",
+            "example": "O-"
+          },
+          "height": {
+            "type": "number",
+            "example": 193.24
+          },
+          "weight": {
+            "type": "number",
+            "example": 63.16
+          },
+          "eyeColor": {
+            "type": "string",
+            "example": "Green"
+          },
+          "hair": {
+            "type": "object",
+            "properties": {
+              "color": {
+                "type": "string",
+                "example": "Brown"
+              },
+              "type": {
+                "type": "string",
+                "example": "Curly"
+              }
+            }
+          },
+          "ip": {
+            "type": "string",
+            "example": "42.48.100.32"
+          },
+          "address": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string",
+                "example": "626 Main Street"
+              },
+              "city": {
+                "type": "string",
+                "example": "Phoenix"
+              },
+              "state": {
+                "type": "string",
+                "example": "Mississippi"
+              },
+              "stateCode": {
+                "type": "string",
+                "example": "MS"
+              },
+              "postalCode": {
+                "type": "string",
+                "example": "29112"
+              },
+              "coordinates": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "example": -77.16213
+                  },
+                  "lng": {
+                    "type": "number",
+                    "example": -92.084824
+                  }
+                }
+              },
+              "country": {
+                "type": "string",
+                "example": "United States"
+              }
+            }
+          },
+          "macAddress": {
+            "type": "string",
+            "example": "47:fa:41:18:ec:eb"
+          },
+          "university": {
+            "type": "string",
+            "example": "University of Wisconsin--Madison"
+          },
+          "bank": {
+            "type": "object",
+            "properties": {
+              "cardExpire": {
+                "type": "string",
+                "example": "05/28"
+              },
+              "cardNumber": {
+                "type": "string",
+                "example": "3693233511855044"
+              },
+              "cardType": {
+                "type": "string",
+                "example": "Diners Club International"
+              },
+              "currency": {
+                "type": "string",
+                "example": "GBP"
+              },
+              "iban": {
+                "type": "string",
+                "example": "GB74MH2UZLR9TRPHYNU8F8"
+              }
+            }
+          },
+          "company": {
+            "type": "object",
+            "properties": {
+              "department": {
+                "type": "string",
+                "example": "Engineering"
+              },
+              "name": {
+                "type": "string",
+                "example": "Dooley, Kozey and Cronin"
+              },
+              "title": {
+                "type": "string",
+                "example": "Sales Manager"
+              },
+              "address": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string",
+                    "example": "263 Tenth Street"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "San Francisco"
+                  },
+                  "state": {
+                    "type": "string",
+                    "example": "Wisconsin"
+                  },
+                  "stateCode": {
+                    "type": "string",
+                    "example": "WI"
+                  },
+                  "postalCode": {
+                    "type": "string",
+                    "example": "37657"
+                  },
+                  "coordinates": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "example": 71.814525
+                      },
+                      "lng": {
+                        "type": "number",
+                        "example": -161.150263
+                      }
+                    }
+                  },
+                  "country": {
+                    "type": "string",
+                    "example": "United States"
+                  }
+                }
+              }
+            }
+          },
+          "ein": {
+            "type": "string",
+            "example": "977-175"
+          },
+          "ssn": {
+            "type": "string",
+            "example": "900-590-289"
+          },
+          "userAgent": {
+            "type": "string",
+            "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
+          },
+          "crypto": {
+            "type": "object",
+            "properties": {
+              "coin": {
+                "type": "string",
+                "example": "Bitcoin"
+              },
+              "wallet": {
+                "type": "string",
+                "example": "0xb9fc2fe63b2a6c003f1c324c3bfa53259162181a"
+              },
+              "network": {
+                "type": "string",
+                "example": "Ethereum (ERC20)"
+              }
+            }
+          },
+          "role": {
+            "type": "string",
+            "example": "admin"
+          }
+        }
+      },
+      "Tokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "ProductList": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "example": 0
+          },
+          "skip": {
+            "type": "integer",
+            "example": 0
+          },
+          "limit": {
+            "type": "integer",
+            "example": 30
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Essence Mascara Lash Princess"
+          },
+          "description": {
+            "type": "string",
+            "example": "The Essence Mascara Lash Princess is a popular mascara known for its volumizing and lengthening effects. Achieve dramatic lashes with this long-lasting and cruelty-free formula."
+          },
+          "category": {
+            "type": "string",
+            "example": "beauty"
+          },
+          "price": {
+            "type": "number",
+            "example": 9.99
+          },
+          "discountPercentage": {
+            "type": "number",
+            "example": 10.48
+          },
+          "rating": {
+            "type": "number",
+            "example": 2.56
+          },
+          "stock": {
+            "type": "integer",
+            "example": 99
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "beauty"
+            }
+          },
+          "brand": {
+            "type": "string",
+            "example": "Essence"
+          },
+          "sku": {
+            "type": "string",
+            "example": "BEA-ESS-ESS-001"
+          },
+          "weight": {
+            "type": "integer",
+            "example": 4
+          },
+          "dimensions": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "example": 15.14
+              },
+              "height": {
+                "type": "number",
+                "example": 13.08
+              },
+              "depth": {
+                "type": "number",
+                "example": 22.99
+              }
+            }
+          },
+          "warrantyInformation": {
+            "type": "string",
+            "example": "1 week warranty"
+          },
+          "shippingInformation": {
+            "type": "string",
+            "example": "Ships in 3-5 business days"
+          },
+          "availabilityStatus": {
+            "type": "string",
+            "example": "In Stock"
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rating": {
+                  "type": "integer",
+                  "example": 3
+                },
+                "comment": {
+                  "type": "string",
+                  "example": "Would not recommend!"
+                },
+                "date": {
+                  "type": "string",
+                  "example": "2025-04-30T09:41:02.053Z"
+                },
+                "reviewerName": {
+                  "type": "string",
+                  "example": "Eleanor Collins"
+                },
+                "reviewerEmail": {
+                  "type": "string",
+                  "example": "eleanor.collins@x.dummyjson.com"
+                }
+              }
+            }
+          },
+          "returnPolicy": {
+            "type": "string",
+            "example": "No return policy"
+          },
+          "minimumOrderQuantity": {
+            "type": "integer",
+            "example": 48
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "createdAt": {
+                "type": "string",
+                "example": "2025-10-09T14:47:01.588Z"
+              },
+              "updatedAt": {
+                "type": "string",
+                "example": "2026-05-23T11:27:41.868Z"
+              },
+              "barcode": {
+                "type": "string",
+                "example": "5784719087687"
+              },
+              "qrCode": {
+                "type": "string",
+                "example": "https://cdn.dummyjson.com/public/qr-code.png"
+              }
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/1.webp"
+            }
+          },
+          "thumbnail": {
+            "type": "string",
+            "example": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/thumbnail.webp"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 30
+        },
+        "description": "Items per page. Use 0 to return all items."
+      },
+      "skip": {
+        "name": "skip",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "description": "Number of items to skip."
+      },
+      "select": {
+        "name": "select",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Comma-separated fields to include (id is always included).",
+        "example": "title,price"
+      },
+      "sortBy": {
+        "name": "sortBy",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Field to sort by.",
+        "example": "title"
+      },
+      "order": {
+        "name": "order",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc"
+        },
+        "description": "Sort order."
+      },
+      "delay": {
+        "name": "delay",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "description": "Artificial response delay in milliseconds (0–5000)."
+      },
+      "modifiedAfter": {
+        "name": "modifiedAfter",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": "ISO 8601 date; return items updated after this time."
+      },
+      "modifiedBefore": {
+        "name": "modifiedBefore",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": "ISO 8601 date; return items updated before this time."
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Resource id."
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Access token from /auth/login"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "accessToken",
+        "description": "HttpOnly cookie set by /auth/login"
+      }
+    }
+  }
+}

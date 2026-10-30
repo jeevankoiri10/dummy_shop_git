@@ -1,0 +1,10 @@
+swagger_parser:
+  schema_path: openapi/dummyjson.json
+  output_directory: lib/core/network/generated
+  name: dummy_json
+  language: dart
+  json_serializer: json_serializable
+  root_client: false
+  export_file: true
+  put_clients_in_folder: true
+  squash_clients: false
