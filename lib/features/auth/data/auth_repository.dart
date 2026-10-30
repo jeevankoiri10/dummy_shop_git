@@ -36,7 +36,10 @@ class AuthRepositoryImpl implements AuthRepository {
           expiresInMins: 60,
         ),
       );
-      final accessToken = res.accessToken!;
+      final accessToken = res.accessToken;
+      if (accessToken == null || accessToken.isEmpty) {
+        throw const ApiException('Login succeeded but no token was returned.');
+      }
       await _tokenStorage.saveTokens(
         accessToken: accessToken,
         refreshToken: res.refreshToken,
