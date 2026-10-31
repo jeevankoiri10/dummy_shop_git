@@ -20,12 +20,13 @@ Test account: **emilys / emilyspass**
 Requires Flutter 3.35+.
 
 ```bash
-flutter create . --project-name dummy_shop --platforms=android,ios,web
 flutter pub get
 flutter run
 ```
 
 To use another API, copy `.env.example` to `.env` and run `flutter run --dart-define-from-file=.env`. Without it, the app uses dummyjson.com.
+
+For iOS, first run `flutter create . --project-name dummy_shop --platforms=ios`.
 
 Run the tests with `flutter test`.
 
@@ -38,5 +39,6 @@ Run the tests with `flutter test`.
 - **Errors:** repositories turn every Dio error into one `ApiException`, so the UI never imports Dio.
 - **Auth:** tokens are kept in `flutter_secure_storage`, which is weaker on web than on mobile. An interceptor adds the token to each request. On a `401`, it renews the token once with `/auth/refresh` and retries, and requests that fail together share that refresh. If the refresh is rejected, the tokens are cleared and `SessionCubit` returns the user to login. A network error during a refresh doesn't log the user out.
 - **Beyond the brief:** a profile page reads `/users/{id}` and requests only the fields it shows, which leaves out the password the API would otherwise return. Avatars fall back to `/icon`, and products with no image use `/image`.
+- **Android:** `android/` is committed because release builds need the `INTERNET` permission in the main manifest, and `flutter create` only adds it for debug and profile builds.
 - **DI:** wired by hand in `main.dart`, which is enough at this size.
 - **Tests:** cover the Bloc and Cubits, product parsing, the refresh flow in the interceptor, and the login and profile screens.

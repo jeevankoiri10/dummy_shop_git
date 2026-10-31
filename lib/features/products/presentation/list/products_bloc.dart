@@ -14,8 +14,9 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       : super(const ProductsState()) {
     on<ProductsStarted>(_onStarted, transformer: droppable());
     on<ProductsRefreshed>(_onRefreshed, transformer: droppable());
-    // Ignore scroll events while a page is loading.
-    on<ProductsNextPageRequested>(_onNextPage, transformer: droppable());
+    // Not droppable: a stale request would block the next page after a refresh.
+    // _onNextPage ignores duplicates through isLoadingMore.
+    on<ProductsNextPageRequested>(_onNextPage);
   }
 
   final ProductsRepository _repository;

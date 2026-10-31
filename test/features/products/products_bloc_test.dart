@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dummy_shop/core/network/api_exception.dart';
+import 'package:dummy_shop/features/products/data/models/product.dart';
 import 'package:dummy_shop/features/products/data/products_repository.dart';
 import 'package:dummy_shop/features/products/presentation/list/products_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -161,5 +164,35 @@ void main() {
         expect(b.state.status, ProductsStatus.success);
       },
     );
+  });
+
+  test('a stale next page does not block the next page after a refresh',
+      () async {
+    stubPages();
+    final stale = Completer<ProductPage>();
+    when(() => repo.fetchProducts(skip: pageSize, limit: pageSize))
+        .thenAnswer((_) => stale.future);
+    Future<void> settle() => Future<void>.delayed(Duration.zero);
+
+    final bloc = build()..add(const ProductsStarted());
+    addTearDown(bloc.close);
+    await settle();
+    bloc.add(const ProductsNextPageRequested());
+    await settle();
+    bloc.add(const ProductsRefreshed());
+    await settle();
+
+    // The old request is still in flight when the footer asks again.
+    final fresh = fakePage(skip: pageSize, limit: pageSize, total: 25);
+    when(() => repo.fetchProducts(skip: pageSize, limit: pageSize))
+        .thenAnswer((_) async => fresh);
+    bloc.add(const ProductsNextPageRequested());
+    await settle();
+    expect(bloc.state.products, hasLength(pageSize * 2));
+
+    // The late response must not add its page again.
+    stale.complete(fresh);
+    await settle();
+    expect(bloc.state.products, hasLength(pageSize * 2));
   });
 }
