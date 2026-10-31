@@ -11,9 +11,9 @@ Test account: **emilys / emilyspass**
 
 ## Screenshots
 
-| Login | Products | Product details |
-|---|---|---|
-| ![Login screen](screenshots/login.png) | ![Product list](screenshots/products.png) | ![Product details](screenshots/product-detail.png) |
+| Login | Products | Product details | Profile |
+|---|---|---|---|
+| ![Login screen](screenshots/login.png) | ![Product list](screenshots/products.png) | ![Product details](screenshots/product-detail.png) | ![Profile](screenshots/profile.png) |
 
 ## Run
 
