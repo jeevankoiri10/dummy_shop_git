@@ -9,6 +9,12 @@ https://dummyjson.com/users
 
 Test account: **emilys / emilyspass**
 
+## Screenshots
+
+| Login | Products | Product details |
+|---|---|---|
+| ![Login screen](screenshots/login.png) | ![Product list](screenshots/products.png) | ![Product details](screenshots/product-detail.png) |
+
 ## Run
 
 Requires Flutter 3.35+.
