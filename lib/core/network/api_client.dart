@@ -4,7 +4,10 @@ import 'package:flutter/foundation.dart';
 import '../storage/token_storage.dart';
 import 'generated/export.dart' as api;
 
-const kBaseUrl = 'https://dummyjson.com';
+const kBaseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'https://dummyjson.com',
+);
 
 /// Shared Dio client. Adds the token and reports 401s.
 Dio createDio({

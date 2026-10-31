@@ -19,6 +19,8 @@ flutter pub get
 flutter run
 ```
 
+To use another API, copy `.env.example` to `.env` and run `flutter run --dart-define-from-file=.env`. Without it, the app uses dummyjson.com.
+
 Run the tests with `flutter test`.
 
 ## Decisions
